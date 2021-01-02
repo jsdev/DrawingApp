@@ -48,10 +48,17 @@ server.on('listening', () => {
 // Web sockets
 const io = require('socket.io')(server)
 
-io.sockets.on('connection', (socket) => {
-	console.log('Client connected: ' + socket.id)
+const drawHistory = [];
 
-	socket.on('mouse', (data) => socket.broadcast.emit('mouse', data))
+io.sockets.on('connection', (socket) => {
+	console.log('Client connected: ' + socket.id, 'drawHistory length: ' + drawHistory.length)
+	drawHistory.forEach(item => {
+		socket.broadcast.emit('mouse', item)
+	});
+	socket.on('mouse', (data) => {
+		drawHistory.push(data);
+		socket.broadcast.emit('mouse', data)
+	})
 
 	socket.on('disconnect', () => console.log('Client has disconnected'))
 })
